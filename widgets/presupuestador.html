@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<title>Presupuestador de Alarmas</title>
+<style>
+@font-face{
+  font-family:'BW Quinta Pro';
+  src:url('../fonts/BWQuintaPro-Regular.woff2') format('woff2'),
+      url('../fonts/BWQuintaPro-Regular.woff') format('woff');
+  font-weight:400; font-style:normal; font-display:swap;
+}
+@font-face{
+  font-family:'BW Quinta Pro';
+  src:url('../fonts/BWQuintaPro-Medium.woff2') format('woff2'),
+      url('../fonts/BWQuintaPro-Medium.woff') format('woff');
+  font-weight:500; font-style:normal; font-display:swap;
+}
+@font-face{
+  font-family:'BW Quinta Pro';
+  src:url('../fonts/BWQuintaPro-Bold.woff2') format('woff2'),
+      url('../fonts/BWQuintaPro-Bold.woff') format('woff');
+  font-weight:700; font-style:normal; font-display:swap;
+}
+@font-face{
+  font-family:'BW Quinta Pro';
+  src:url('../fonts/BWQuintaPro-Black.woff2') format('woff2'),
+      url('../fonts/BWQuintaPro-Black.woff') format('woff');
+  font-weight:900; font-style:normal; font-display:swap;
+}
+:root{ --primary: #01426a; --bg: transparent; --border: #e0e0e0; --text-muted: #666; }
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  font-family: 'BW Quinta Pro', 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  background: transparent;
+}
+body { padding: 4px; }
+.wizard {
+  max-width: 520px;
+  margin: auto;
+  background: #fff;
+  padding: clamp(20px, 4vw, 34px);
+}
+.progress {
+  height: 6px;
+  background: var(--border);
+  border-radius: 6px;
+  margin-bottom: 22px;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  width: 14%;
+  background: var(--primary);
+  transition: width .3s ease;
+}
+h2 {
+  color: var(--primary);
+  font-size: clamp(16px, 3.6vw, 19px);
+  text-align: center;
+  margin: 0 0 18px;
+  font-family: 'BW Quinta Pro', 'Poppins', system-ui, sans-serif;
+  font-weight: 700;
+}
+.options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  gap: 10px;
+}
+.option {
+  border: 1px solid var(--border);
+  padding: 14px;
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .2s ease;
+  background: #fff;
+  font-size: 14.5px;
+}
+.option:hover, .option:focus-visible {
+  border-color: var(--primary);
+  background: rgba(1,66,106,.06);
+  transform: translateY(-2px);
+}
+.step-counter {
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-top: 18px;
+  display: block;
+  font-family: 'BW Quinta Pro', 'Poppins', system-ui, sans-serif;
+}
+.hidden { display: none; }
+.nav-buttons { display: flex; justify-content: center; margin-top: 18px; }
+.back-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--primary);
+  padding: 10px 20px;
+  font-family: 'BW Quinta Pro', 'Poppins', system-ui, sans-serif;
+  font-weight: 700;
+}
+form { display: grid; gap: 12px; }
+input {
+  padding: 13px 14px;
+  border-radius: 9px;
+  border: 1px solid var(--border);
+  font-size: 14.5px;
+  font-family: inherit;
+}
+button {
+  padding: 14px 20px;
+  border-radius: 10px;
+  border: none;
+  font-size: 14.5px;
+  cursor: pointer;
+}
+.primary-btn {
+  background: #25D366;
+  color: #fff;
+  font-weight: bold;
+  font-family: 'BW Quinta Pro', 'Poppins', system-ui, sans-serif;
+}
+.primary-btn:hover { background: #128C7E; }
+</style>
+</head>
+<body>
+<div class="wizard">
+  <div class="progress"><div class="progress-bar" id="progress"></div></div>
+
+  <div class="step" id="step1">
+    <h2>¿Para qué tipo de propiedad es la alarma?</h2>
+    <div class="options">
+      <div class="option" onclick="next('Propiedad','Hogar')">🏠 Hogar</div>
+      <div class="option" onclick="next('Propiedad','Negocio')">🏪 Negocio</div>
+    </div>
+    <span class="step-counter">Paso 1 de 7</span>
+  </div>
+
+  <div class="step hidden" id="step2-hogar">
+    <h2>¿Qué tipo de vivienda tenés?</h2>
+    <div class="options">
+      <div class="option" onclick="next('Vivienda','Casa')">🏡 Casa</div>
+      <div class="option" onclick="next('Vivienda','Departamento')">🏢 Departamento</div>
+    </div>
+    <span class="step-counter">Paso 2 de 7</span>
+    <div class="nav-buttons"><button type="button" class="back-btn" onclick="back()">← Volver</button></div>
+  </div>
+
+  <div class="step hidden" id="step2-negocio">
+    <h2>¿Qué tipo de negocio tenés?</h2>
+    <div class="options">
+      <div class="option" onclick="next('Negocio','Puerta a la calle')">🏪 Puerta a la calle</div>
+      <div class="option" onclick="next('Negocio','Centro comercial')">🛍️ Centro comercial</div>
+      <div class="option" onclick="next('Negocio','Oficina')">🏢 Oficina</div>
+      <div class="option" onclick="next('Negocio','Otro')">❓ Otro</div>
+    </div>
+    <span class="step-counter">Paso 2 de 7</span>
+    <div class="nav-buttons"><button type="button" class="back-btn" onclick="back()">← Volver</button></div>
+  </div>
+
+  <div class="step hidden" id="step3">
+    <h2>¿Cuántos accesos desde el exterior?</h2>
+    <div class="options">
+      <div class="option" onclick="next('Accesos','2 accesos')">🚪🪟 2 accesos</div>
+      <div class="option" onclick="next('Accesos','3 a 5')">🚪🪟🚪 3 a 5</div>
+      <div class="option" onclick="next('Accesos','Más de 5')">🚪🪟🚪🪟🚪 Más de 5</div>
+    </div>
+    <span class="step-counter">Paso 3 de 7</span>
+    <div class="nav-buttons"><button type="button" class="back-btn" onclick="back()">← Volver</button></div>
+  </div>
+
+  <div class="step hidden" id="step4">
+    <h2>¿Cuenta con jardín o patio exterior?</h2>
+    <div class="options">
+      <div class="option" onclick="next('Jardín','Sí')">🌿 Sí</div>
+      <div class="option" onclick="next('Jardín','No')">❌ No</div>
+    </div>
+    <span class="step-counter">Paso 4 de 7</span>
+    <div class="nav-buttons"><button type="button" class="back-btn" onclick="back()">← Volver</button></div>
+  </div>
+
+  <div class="step hidden" id="step5">
+    <h2>¿Han robado alguna vez cerca?</h2>
+    <div class="options">
+      <div class="option" onclick="next('Robos cerca','Sí')">⚠️ Sí</div>
+      <div class="option" onclick="next('Robos cerca','No')">✅ No</div>
+    </div>
+    <span class="step-counter">Paso 5 de 7</span>
+    <div class="nav-buttons"><button type="button" class="back-btn" onclick="back()">← Volver</button></div>
+  </div>
+
+  <div class="step hidden" id="step6">
+    <h2>¿Cuántos pisos tiene la propiedad?</h2>
+    <div class="options">
+      <div class="option" onclick="next('Pisos','1 piso')">1 piso</div>
+      <div class="option" onclick="next('Pisos','2 pisos')">2 pisos</div>
+      <div class="option" onclick="next('Pisos','3 o más pisos')">3 o más</div>
+    </div>
+    <span class="step-counter">Paso 6 de 7</span>
+    <div class="nav-buttons"><button type="button" class="back-btn" onclick="back()">← Volver</button></div>
+  </div>
+
+  <div class="step hidden" id="step7">
+    <h2>¡Último paso! Dejanos tus datos</h2>
+    <form onsubmit="sendWhatsApp(event)">
+      <input id="nombre" placeholder="Nombre completo" required>
+      <input id="email_user" type="email" placeholder="Tu Email (opcional)">
+      <button class="primary-btn" type="submit">Pedí tu presupuesto por WhatsApp</button>
+    </form>
+    <span class="step-counter">Paso 7 de 7</span>
+    <div class="nav-buttons"><button type="button" class="back-btn" onclick="back()">← Volver</button></div>
+  </div>
+</div>
+
+<script>
+let history = [];
+let data = {};
+let step = 1;
+const total = 7;
+
+function updateProgress() {
+  const percent = (step / total) * 100;
+  document.getElementById("progress").style.width = percent + "%";
+}
+
+function show(id) {
+  document.querySelectorAll(".step").forEach(s => s.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+  reportHeight();
+}
+
+function next(key, value) {
+  data[key] = value;
+  history.push(step);
+  if (step === 1) {
+    step = 2;
+    value === "Hogar" ? show("step2-hogar") : show("step2-negocio");
+  } else {
+    step++;
+    show("step" + step);
+  }
+  updateProgress();
+}
+
+function back() {
+  if (!history.length) return;
+  step = history.pop();
+  if (step === 1) show("step1");
+  else if (step === 2) data['Propiedad'] === "Hogar" ? show("step2-hogar") : show("step2-negocio");
+  else show("step" + step);
+  updateProgress();
+}
+
+function sendWhatsApp(e) {
+  e.preventDefault();
+  const nombre = document.getElementById("nombre").value;
+  const email = document.getElementById("email_user").value || "No especificado";
+  const telefono = "5493416925299";
+  let mensaje = `*NUEVO PRESUPUESTO SOLICITADO*\n`;
+  mensaje += `--------------------------------\n`;
+  mensaje += `👤 *Cliente:* ${nombre}\n`;
+  mensaje += `📧 *Email:* ${email}\n\n`;
+  mensaje += `*DETALLES:* \n`;
+  for (const [key, value] of Object.entries(data)) {
+    mensaje += `✅ *${key}:* ${value}\n`;
+  }
+  mensaje += `--------------------------------\n`;
+  mensaje += `_Enviado desde el presupuestador web_`;
+  const url = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
+  window.open(url, '_blank');
+}
+
+/* --- Auto-resize communication with parent page --- */
+function reportHeight() {
+  const h = document.body.scrollHeight;
+  parent.postMessage({ pwCotizadorHeight: h }, '*');
+}
+window.addEventListener('DOMContentLoaded', reportHeight);
+window.addEventListener('load', reportHeight);
+window.addEventListener('resize', reportHeight);
+setTimeout(reportHeight, 100);
+setTimeout(reportHeight, 500);
+if ('ResizeObserver' in window) {
+  new ResizeObserver(reportHeight).observe(document.body);
+} else {
+  setInterval(reportHeight, 500);
+}
+</script>
+</body>
+</html>
